@@ -7,6 +7,7 @@ import { TicketStatusEnum } from '@/enum/TicketStatusEnum';
 export const useTicketsStore = defineStore('tickets', () => {
     // State
     const tickets = ref<ITicket[]>([]);
+    const currentTicket = ref<ITicket | undefined>(undefined);
 
     // Getters
     const newTickets = computed(() => tickets.value.filter(ticket => ticket.status === TicketStatusEnum.NEW));
@@ -40,6 +41,7 @@ export const useTicketsStore = defineStore('tickets', () => {
 
     return {
         tickets,
+        currentTicket,
         newTickets,
         inProgressTickets,
         closedTickets,

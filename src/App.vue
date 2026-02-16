@@ -25,8 +25,17 @@ body {
     font-family: 'Roboto', sans-serif;
     &_content {
         padding: $main-content-padding-vertical $main-content-padding-horizontal;
-        min-height: calc(100vh - $navbar-height - ($main-content-padding-vertical * 2));
+        height: calc(100vh - $navbar-height - ($main-content-padding-vertical * 2));
         background-color: $background-color;
+    }
+    main {
+        height: 100%;
+    }
+    @media (max-width: 992px) {
+        &_content {
+            padding-left: $main-content-padding-vertical;
+            padding-right: $main-content-padding-vertical;
+        }
     }
 }
 </style>

@@ -28,3 +28,8 @@ export async function updateTicketStatus(ticketId: number, newStatus: TicketStat
     await delay(1000);
     return true;
 };
+
+export async function fetchTicketDetails(ticketId: number): Promise<ITicket | undefined> {
+    await delay(2000);
+    return mockedTickets.find(ticket => ticket.id === ticketId);
+}

@@ -92,5 +92,95 @@ export const mockedTickets: ITicket[] = [
         priority: TicketPriorityEnum.MEDIUM,
         status: TicketStatusEnum.CLOSED,
         createdAt: '2024-01-28T12:40:00'
-    }
+    },
+    {
+        id: 11,
+        customerName: 'Grzegorz Rutkowski',
+        subject: 'Problemy z logowaniem',
+        description: 'Po zmianie hasła nie mogę się zalogować.',
+        priority: TicketPriorityEnum.HIGH,
+        status: TicketStatusEnum.NEW,
+        createdAt: '2024-01-27T09:05:00'
+    },
+    {
+        id: 12,
+        customerName: 'Joanna Cieślak',
+        subject: 'Błędna kwota na fakturze',
+        description: 'Kwota na ostatniej fakturze jest nieprawidłowa.',
+        priority: TicketPriorityEnum.MEDIUM,
+        status: TicketStatusEnum.IN_PROGRESS,
+        createdAt: '2024-01-26T14:20:00'
+    },
+    {
+        id: 13,
+        customerName: 'Bartłomiej Lewandowski',
+        subject: 'Zgłoszenie pomysłu na funkcję',
+        description: 'Proszę o dodanie możliwości filtrowania wyników.',
+        priority: TicketPriorityEnum.LOW,
+        status: TicketStatusEnum.NEW,
+        createdAt: '2024-01-25T11:45:00'
+    },
+    {
+        id: 14,
+        customerName: 'Anna Pawlak',
+        subject: 'Nie działa przypomnienie hasła',
+        description: 'Nie przychodzi e-mail z linkiem do resetu hasła.',
+        priority: TicketPriorityEnum.HIGH,
+        status: TicketStatusEnum.CLOSED,
+        createdAt: '2024-01-24T15:55:00'
+    },
+    {
+        id: 15,
+        customerName: 'Marek Król',
+        subject: 'Brak dostępu do konta',
+        description: 'Moje konto zostało zablokowane bez powodu.',
+        priority: TicketPriorityEnum.MEDIUM,
+        status: TicketStatusEnum.IN_PROGRESS,
+        createdAt: '2024-01-23T10:30:00'
+    },
+    {
+        id: 16,
+        customerName: 'Maria Kowalik',
+        subject: 'Niepoprawne dane w profilu',
+        description: 'Po edycji profilu dane nie zapisują się prawidłowo.',
+        priority: TicketPriorityEnum.LOW,
+        status: TicketStatusEnum.NEW,
+        createdAt: '2024-01-22T13:15:00'
+    },
+    {
+        id: 17,
+        customerName: 'Jakub Szymański',
+        subject: 'Brak możliwości zmiany języka',
+        description: 'Opcja zmiany języka jest nieaktywna.',
+        priority: TicketPriorityEnum.LOW,
+        status: TicketStatusEnum.CLOSED,
+        createdAt: '2024-01-21T08:55:00'
+    },
+    {
+        id: 18,
+        customerName: 'Elżbieta Szczepańska',
+        subject: 'Aplikacja zawiesza się podczas pracy',
+        description: 'Podczas dodawania nowych elementów aplikacja się zawiesza.',
+        priority: TicketPriorityEnum.HIGH,
+        status: TicketStatusEnum.IN_PROGRESS,
+        createdAt: '2024-01-20T12:10:00'
+    },
+    {
+        id: 19,
+        customerName: 'Tomasz Mazur',
+        subject: 'Błąd przy generowaniu dokumentów',
+        description: 'Generowane dokumenty PDF są puste.',
+        priority: TicketPriorityEnum.MEDIUM,
+        status: TicketStatusEnum.NEW,
+        createdAt: '2024-01-19T17:45:00'
+    },
+    {
+        id: 20,
+        customerName: 'Karolina Wiśniewska',
+        subject: 'Sugerowana zmiana interfejsu',
+        description: 'Przyciski powinny być większe dla łatwiejszego dostępu.',
+        priority: TicketPriorityEnum.LOW,
+        status: TicketStatusEnum.CLOSED,
+        createdAt: '2024-01-18T16:05:00'
+    },
 ];

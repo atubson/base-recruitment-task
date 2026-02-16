@@ -1,17 +1,19 @@
 <template>
     <div class="tickets">
         <h2>Zgłoszenia</h2>
-        <div class="tickets_list-filters">
-            <div class="tickets_list-filters-icon"><i class="fa-solid fa-filter"></i></div>
-            <div class="tickets_list-filters-multiselect">
-                <Multiselect
-                    v-model="selectedStatus"
-                    placeholder="Wybierz status"
-                    :options="filterStatusOptions"
-                />
+        <div class="tickets_table-container">
+            <div class="tickets_list-filters">
+                <div class="tickets_list-filters-icon"><i class="fa-solid fa-filter"></i></div>
+                <div class="tickets_list-filters-multiselect">
+                    <Multiselect
+                        v-model="selectedStatus"
+                        placeholder="Wybierz status"
+                        :options="filterStatusOptions"
+                    />
+                </div>
             </div>
+            <TicketsTable :tickets="filteredTickets" :loading="loading" />
         </div>
-        <TicketsTable :tickets="filteredTickets" />
     </div>
 </template>
 
@@ -31,9 +33,16 @@ const filterStatusOptions = [
 ];
 
 const selectedStatus = ref<TicketStatusEnum[]>([]);
+const loading = ref<boolean>(false);
 
-onMounted(() => {
-    ticketsStore.getTickets();
+onMounted(async () => {
+    if (ticketsStore.tickets.length > 0) {
+        return;
+    }
+
+    loading.value = true;
+    await ticketsStore.getTickets();
+    loading.value = false;
 });
 
 const filteredTickets = computed<ITicket[]>(() => {
@@ -59,6 +68,7 @@ const filteredTickets = computed<ITicket[]>(() => {
 
 <style lang="scss" scoped>
 .tickets {
+    height: 100%;
     h2 {
         margin-top: 0;
         margin-bottom: $h2-margin-bottom;
@@ -71,13 +81,30 @@ const filteredTickets = computed<ITicket[]>(() => {
         align-items: center;
         gap: $home-list-filters-gap;
         margin-bottom: $home-list-filters-margin-bottom;
+        padding: 0 $tickets-table-padding-horizontal;
         &-icon {
             font-size: 1.5rem;
             color: $icon-gray;
         }
+        &-multiselect {
+            @media (max-width: 480px) {
+                flex-grow: 1;
+            }
+        }
     }
     .multi-select {
         width: 250px;
+        @media (max-width: 480px) {
+            width: 100%;
+        }
+    }
+    &_table-container {
+        height: calc(100% - 30px - 38px - $main-content-padding-vertical);
+        background-color: $white;
+        border-radius: $tickets-table-radius;
+        border: 1px solid $tickets-table-border-color;
+        padding: $tickets-table-padding-vertical 0;
+        overflow: hidden;
     }
 }
 </style>
