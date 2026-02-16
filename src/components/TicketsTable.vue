@@ -15,7 +15,7 @@
                     <td>{{ ticket.id }}</td>
                     <td>{{ ticket.customerName }}</td>
                     <td>{{ ticket.subject }}</td>
-                    <td>{{ getReadableStatus(ticket.status) }}</td>
+                    <td><span :class="`tickets-table_status-text-${getStatusClass(ticket.status)}`">{{ getReadableStatus(ticket.status) }}</span></td>
                     <td>{{ getReadablePriority(ticket.priority) }}</td>
                 </tr>
             </tbody>
@@ -28,7 +28,7 @@ import { useTicketStatus } from '@/composables/useTicketStatus';
 import { useTicketPriority } from '@/composables/useTicketPriority';
 import type { ITicket } from '@/types';
 
-const { getReadableStatus } = useTicketStatus();
+const { getReadableStatus, getStatusClass } = useTicketStatus();
 const { getReadablePriority } = useTicketPriority();
 
 const props = defineProps<{
@@ -41,6 +41,17 @@ const props = defineProps<{
     table {
         width: 100%;
         border-collapse: collapse;
+    }
+    &_status-text {
+        &-new {
+            color: $status-new;
+        }
+        &-inprogress {
+            color: $status-in-progress;
+        }
+        &-closed {
+            color: $status-closed;
+        }
     }
 }
 </style>

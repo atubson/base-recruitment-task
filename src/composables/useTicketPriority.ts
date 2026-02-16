@@ -6,7 +6,7 @@ const PRIORITY_LABELS: Record<TicketPriorityEnum, string> = {
     [TicketPriorityEnum.HIGH]: 'Wysoki',
 };
 
-export function useTicketPriority() {
+export const useTicketPriority = () => {
     const getReadablePriority = (priority: TicketPriorityEnum): string => {
         return PRIORITY_LABELS[priority] ?? priority;
     };

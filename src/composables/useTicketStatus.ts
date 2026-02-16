@@ -6,10 +6,14 @@ const STATUS_LABELS: Record<TicketStatusEnum, string> = {
     [TicketStatusEnum.CLOSED]: 'Zamknięte',
 };
 
-export function useTicketStatus() {
+export const useTicketStatus = () => {
     const getReadableStatus = (status: TicketStatusEnum): string => {
         return STATUS_LABELS[status] ?? status;
     };
 
-    return { getReadableStatus };
+    const getStatusClass = (status: TicketStatusEnum): string => {
+        return status;
+    };
+
+    return { getReadableStatus, getStatusClass };
 }
