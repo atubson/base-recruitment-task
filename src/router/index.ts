@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import TicketsView from '../views/Tickets.vue'
-import TicketDetailsView from '../views/TicketDetails.vue'
-import NotFoundView from '../views/NotFound.vue'
+import TicketsView from '@/views/Tickets.vue'
+import TicketDetailsView from '@/views/TicketDetails.vue'
+import NotFoundView from '@/views/NotFound.vue'
 
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),

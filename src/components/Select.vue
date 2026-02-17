@@ -47,12 +47,12 @@ const selectedLabel = computed(() => {
     return option?.label ?? '';
 });
 
-function toggleDropdown() {
+const toggleDropdown = () => {
     if (props.disabled) return;
     isOpen.value = !isOpen.value;
 }
 
-function selectOption(value: string) {
+const selectOption = (value: string) => {
     emit('update:modelValue', value);
     isOpen.value = false;
 }

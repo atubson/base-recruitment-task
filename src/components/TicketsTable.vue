@@ -1,7 +1,7 @@
 <template>
     <div class="tickets-table">
         <!-- Desktop: table view -->
-        <table v-if="!props.loading" class="tickets-table_head tickets-table_desktop">
+        <table v-if="!props.loading && !isMobileView" class="tickets-table_head tickets-table_desktop">
             <thead>
                 <tr>
                     <th class="tickets-table_col-id">ID</th>
@@ -12,12 +12,12 @@
                 </tr>
             </thead>
         </table>
-        <div v-if="!props.loading" class="tickets-table_body-scroll tickets-table_desktop">
+        <div v-if="!props.loading && !isMobileView" class="tickets-table_body-scroll tickets-table_desktop">
             <table class="tickets-table_body">
                 <tbody class="tickets-table_tbody">
                     <tr
-                        v-for="(ticket, index) in props.tickets"
-                        :key="`${ticket.id}-${index}`"
+                        v-for="ticket in props.tickets"
+                        :key="`${ticket.id}`"
                         @click="handleTicketClick(ticket)"
                     >
                         <td class="tickets-table_col-id">{{ ticket.id }}</td>
@@ -38,12 +38,12 @@
         </div>
 
         <!-- Mobile: card view (768px and less) -->
-        <div v-if="!props.loading" class="tickets-table_cards">
+        <div v-if="!props.loading && isMobileView" class="tickets-table_cards">
             <div
-                v-for="(ticket, index) in props.tickets"
-                :key="`card-${ticket.id}-${index}`"
+                v-for="ticket in props.tickets"
+                :key="`card-${ticket.id}`"
                 class="tickets-table_card"
-                @click="handleTicketClick(ticket.id)"
+                @click="handleTicketClick(ticket)"
             >
                 <div class="tickets-table_card-row">
                     <span class="tickets-table_card-label">ID</span>
@@ -89,12 +89,14 @@
 import { useRouter } from 'vue-router'
 import { useTicketStatus } from '@/composables/useTicketStatus'
 import { useTicketPriority } from '@/composables/useTicketPriority'
+import { useMobileView } from '@/composables/useMobileView'
 import type { ITicket } from '@/types'
 import { useTicketsStore } from '@/stores/tickets'
 
 const router = useRouter()
 const { getReadableStatus, getStatusClass } = useTicketStatus()
 const { getReadablePriority } = useTicketPriority()
+const { isMobileView } = useMobileView()
 const ticketsStore = useTicketsStore();
 
 const props = withDefaults(

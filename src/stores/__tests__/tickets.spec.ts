@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, vi, afterAll } from 'vitest';
 import { setActivePinia, createPinia } from 'pinia';
 import { TicketPriorityEnum } from '@/enum/TicketPriorityEnum';
 import { TicketStatusEnum } from '@/enum/TicketStatusEnum';
-import { fetchTickets, updateTicketStatus } from '@/services/ticketService';
+import { fetchTickets, fetchTicketDetails, updateTicketStatus } from '@/services/ticketService';
 
 const mockedTickets = [
     {
@@ -39,6 +39,7 @@ describe('Tickets Store', () => {
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     vi.mock('@/services/ticketService', () => ({
         fetchTickets: vi.fn(async () => structuredClone(mockedTickets)),
+        fetchTicketDetails: vi.fn(async (id: number) => structuredClone(mockedTickets.find(t => t.id === id))),
         updateTicketStatus: vi.fn(async () => true),
     }));
 
@@ -120,30 +121,57 @@ describe('Tickets Store', () => {
     });
 
     describe('changeTicketStatus', () => {
-        it('should update ticket status', async () => {
+        it('should update ticket status in list when API returns true and tickets are loaded', async () => {
             // GIVEN
             const ticketsStore = useTicketsStore();
             await ticketsStore.getTickets();
-    
+
             // WHEN
             await ticketsStore.changeTicketStatus(1, TicketStatusEnum.IN_PROGRESS);
-    
+
             // THEN
-            expect(ticketsStore.tickets[0]?.status).toBe(TicketStatusEnum.IN_PROGRESS);
             expect(updateTicketStatus).toHaveBeenCalledWith(1, TicketStatusEnum.IN_PROGRESS);
+            expect(ticketsStore.tickets[0]?.status).toBe(TicketStatusEnum.IN_PROGRESS);
+            expect(ticketsStore.tickets[1]?.status).toBe(TicketStatusEnum.NEW);
         });
 
-        it('should not update ticket status if ticket is not found', async () => {
+        it('should not update tickets list when API returns false', async () => {
             // GIVEN
             const ticketsStore = useTicketsStore();
             await ticketsStore.getTickets();
-            
+            vi.mocked(updateTicketStatus).mockResolvedValueOnce(false);
+
             // WHEN
-            await ticketsStore.changeTicketStatus(100, TicketStatusEnum.IN_PROGRESS);
-            
+            await ticketsStore.changeTicketStatus(1, TicketStatusEnum.IN_PROGRESS);
+
             // THEN
             expect(ticketsStore.tickets).toEqual(mockedTickets);
-            expect(updateTicketStatus).toHaveBeenCalledWith(100, TicketStatusEnum.IN_PROGRESS);
+            expect(ticketsStore.tickets[0]?.status).toBe(TicketStatusEnum.NEW);
+        });
+
+        it('should not update tickets list when no tickets are loaded', async () => {
+            // GIVEN
+            const ticketsStore = useTicketsStore();
+            // getTickets() not called - tickets list is empty
+
+            // WHEN
+            await ticketsStore.changeTicketStatus(1, TicketStatusEnum.IN_PROGRESS);
+
+            // THEN
+            expect(updateTicketStatus).toHaveBeenCalledWith(1, TicketStatusEnum.IN_PROGRESS);
+            expect(ticketsStore.tickets).toEqual([]);
+        });
+
+        it('should update currentTicket when it is the ticket being updated', async () => {
+            // GIVEN
+            const ticketsStore = useTicketsStore();
+            await ticketsStore.getCurrentTicket(1);
+
+            // WHEN
+            await ticketsStore.changeTicketStatus(1, TicketStatusEnum.IN_PROGRESS);
+
+            // THEN
+            expect(ticketsStore.currentTicket?.status).toBe(TicketStatusEnum.IN_PROGRESS);
         });
 
         it('should log error when updating ticket status fails', async () => {
@@ -153,9 +181,53 @@ describe('Tickets Store', () => {
 
             // WHEN
             await ticketsStore.changeTicketStatus(1, TicketStatusEnum.IN_PROGRESS);
-    
+
             // THEN
             expect(consoleErrorSpy).toHaveBeenCalledWith('Error updating ticket status:', new Error('Error updating ticket status'));
+        });
+    });
+
+    describe('getCurrentTicket', () => {
+        it('should fetch ticket details and set currentTicket', async () => {
+            // GIVEN
+            const ticketsStore = useTicketsStore();
+            const ticketId = 1;
+
+            // WHEN
+            const result = await ticketsStore.getCurrentTicket(ticketId);
+
+            // THEN
+            expect(fetchTicketDetails).toHaveBeenCalledWith(ticketId);
+            expect(ticketsStore.currentTicket).toEqual(mockedTickets[0]);
+            expect(result).toEqual(mockedTickets[0]);
+        });
+
+        it('should set currentTicket to undefined when ticket is not found', async () => {
+            // GIVEN
+            const ticketsStore = useTicketsStore();
+            vi.mocked(fetchTicketDetails).mockResolvedValueOnce(undefined);
+
+            // WHEN
+            const result = await ticketsStore.getCurrentTicket(999);
+
+            // THEN
+            expect(ticketsStore.currentTicket).toBeUndefined();
+            expect(result).toBeUndefined();
+        });
+
+        it('should log error and return undefined when fetching ticket details fails', async () => {
+            // GIVEN
+            const ticketsStore = useTicketsStore();
+            const error = new Error('Error fetching ticket');
+            vi.mocked(fetchTicketDetails).mockRejectedValueOnce(error);
+
+            // WHEN
+            const result = await ticketsStore.getCurrentTicket(1);
+
+            // THEN
+            expect(consoleErrorSpy).toHaveBeenCalledWith('Error fetching ticket:', error);
+            expect(ticketsStore.currentTicket).toBeUndefined();
+            expect(result).toBeUndefined();
         });
     });
 });

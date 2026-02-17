@@ -18,52 +18,56 @@
 </template>
 
 <script setup lang="ts">
-import TicketsTable from '@/components/TicketsTable.vue';
-import Multiselect from '@/components/Multiselect.vue';
-import { useTicketsStore } from '@/stores/tickets';
-import { onMounted, ref, computed } from 'vue';
-import { TicketStatusEnum } from '@/enum/TicketStatusEnum';
-import type { ITicket } from '@/types';
+import TicketsTable from '@/components/TicketsTable.vue'
+import Multiselect from '@/components/Multiselect.vue'
+import { useTicketsStore } from '@/stores/tickets'
+import { onMounted, ref, computed } from 'vue'
+import { TicketStatusEnum } from '@/enum/TicketStatusEnum'
+import type { ITicket } from '@/types'
 
-const ticketsStore = useTicketsStore();
+const ticketsStore = useTicketsStore()
 const filterStatusOptions = [
     { label: 'Nowe', value: TicketStatusEnum.NEW },
     { label: 'W trakcie', value: TicketStatusEnum.IN_PROGRESS },
     { label: 'Zamknięte', value: TicketStatusEnum.CLOSED },
-];
+]
 
-const selectedStatus = ref<TicketStatusEnum[]>([]);
-const loading = ref<boolean>(false);
+const selectedStatus = ref<TicketStatusEnum[]>([])
+const loading = ref<boolean>(false)
 
 onMounted(async () => {
     if (ticketsStore.tickets.length > 0) {
-        return;
+        return
     }
 
-    loading.value = true;
-    await ticketsStore.getTickets();
+    loading.value = true
+    try {
+        await ticketsStore.getTickets()
+    } catch (error) {
+        // TODO: Add error handling
+        console.error('Error fetching tickets:', error);
+    }
     loading.value = false;
-});
+})
 
 const filteredTickets = computed<ITicket[]>(() => {
     if (selectedStatus.value.length === 0) {
-        return ticketsStore.tickets;
+        return ticketsStore.tickets
     }
 
-    const tickets = [];
+    const tickets: ITicket[] = []
     if (selectedStatus.value.includes(TicketStatusEnum.NEW)) {
-        tickets.push(...ticketsStore.newTickets);
+        tickets.push(...ticketsStore.newTickets)
     }
     if (selectedStatus.value.includes(TicketStatusEnum.IN_PROGRESS)) {
-        tickets.push(...ticketsStore.inProgressTickets);
+        tickets.push(...ticketsStore.inProgressTickets)
     }
     if (selectedStatus.value.includes(TicketStatusEnum.CLOSED)) {
-        tickets.push(...ticketsStore.closedTickets);
+        tickets.push(...ticketsStore.closedTickets)
     }
 
-    return tickets.sort((a, b) => a.id - b.id);
-});
-
+    return tickets.sort((a, b) => a.id - b.id)
+})
 </script>
 
 <style lang="scss" scoped>

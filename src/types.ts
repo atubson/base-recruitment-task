@@ -9,4 +9,4 @@ export interface ITicket {
     priority: TicketPriorityEnum
     status: TicketStatusEnum
     createdAt: string // ISO 8601 date string
-}
+};

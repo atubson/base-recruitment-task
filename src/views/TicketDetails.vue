@@ -48,12 +48,20 @@
                                         <i v-if="saving" class="fa-solid fa-spinner"></i>
                                         <span v-else>Zapisz</span>
                                     </button>
-                                    <i class="fa-solid fa-xmark" @click="isEditingStatus = false"></i>
+                                    <i
+                                        class="fa-solid fa-xmark"
+                                        @click="closedEditStatus"
+                                    ></i>
                                 </div>
                             </template>
                             <template v-else>
                                 <span class="ticket-details_status-display">
-                                    <span :class="['ticket-details_status', `ticket-details_status-text-${getStatusClass(ticket.status)}`]">
+                                    <span
+                                        :class="[
+                                            'ticket-details_status',
+                                            `ticket-details_status-text-${getStatusClass(ticket.status)}`,
+                                        ]"
+                                    >
                                         {{ getReadableStatus(ticket.status) }}
                                     </span>
                                     <button
@@ -79,15 +87,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, watch } from 'vue';
-import { useRoute, useRouter, RouterLink } from 'vue-router';
-import { fetchTicketDetails } from '@/services/ticketService';
-import type { ITicket } from '@/types';
-import { useTicketStatus } from '@/composables/useTicketStatus';
-import { useTicketPriority } from '@/composables/useTicketPriority';
-import { TicketStatusEnum } from '@/enum/TicketStatusEnum';
-import Select from '@/components/Select.vue';
-import { useTicketsStore } from '@/stores/tickets';
+import { ref, onMounted, computed } from 'vue'
+import { useRoute, useRouter, RouterLink } from 'vue-router'
+import type { ITicket } from '@/types'
+import { useTicketStatus } from '@/composables/useTicketStatus'
+import { useTicketPriority } from '@/composables/useTicketPriority'
+import { TicketStatusEnum } from '@/enum/TicketStatusEnum'
+import Select from '@/components/Select.vue'
+import { useTicketsStore } from '@/stores/tickets'
 
 const route = useRoute();
 const router = useRouter();
@@ -101,58 +108,72 @@ const statusOptions = [
     { value: TicketStatusEnum.CLOSED, label: getReadableStatus(TicketStatusEnum.CLOSED) },
 ];
 
-const ticket = ref<ITicket | undefined>(undefined);
-const loading = ref(true);
-const selectedStatus = ref<TicketStatusEnum>(TicketStatusEnum.NEW);
-const saving = ref(false);
-const isEditingStatus = ref(false);
+const ticket = ref<ITicket | undefined>(undefined)
+const loading = ref(true)
+const selectedStatus = ref<TicketStatusEnum>(TicketStatusEnum.NEW)
+const saving = ref(false)
+const isEditingStatus = ref(false)
 
+const hasStatusChanged = computed(
+    () => ticket.value && selectedStatus.value !== ticket.value.status,
+);
 
-const hasStatusChanged = computed(() => ticket.value && selectedStatus.value !== ticket.value.status);
+const setTicketAndStatus = (value: ITicket | undefined) => {
+    ticket.value = value
+    if (value) selectedStatus.value = value.status
+};
 
-watch(ticket, (t) => {
-    if (t) selectedStatus.value = t.status;
-}, { immediate: true });
-
-async function saveStatus() {
+const saveStatus = async () => {
     if (!ticket.value || !hasStatusChanged.value) {
-        isEditingStatus.value = false;
-        return;
+        isEditingStatus.value = false
+        return
     }
 
-    saving.value = true;
-    await ticketsStore.changeTicketStatus(ticket.value.id, selectedStatus.value);
+    saving.value = true
+    try {
+        await ticketsStore.changeTicketStatus(ticket.value.id, selectedStatus.value)
+        isEditingStatus.value = false;
+        setTicketAndStatus(ticketsStore.currentTicket);
+    } catch (error) {
+        // TODO: Handle error
+        console.error('Error saving status:', error);
+    }
     saving.value = false;
+};
+
+const closedEditStatus = () => {
     isEditingStatus.value = false;
-}
+    setTicketAndStatus(ticketsStore.currentTicket);
+};
 
 onMounted(async () => {
-    const id = Number(route.params.id);
+    const id = Number(route.params.id)
     if (Number.isNaN(id)) {
-        router.replace('/404');
-        return;
+        router.replace({ name: 'not-found' })
+        return
     }
 
     // If the current ticket is the same as the one we are viewing, use the current ticket from the store
     if (ticketsStore.currentTicket?.id === id) {
-        ticket.value = ticketsStore.currentTicket;
-        loading.value = false;
-        return;
+        setTicketAndStatus(ticketsStore.currentTicket)
+        loading.value = false
+        return
     }
 
     // Otherwise, fetch the ticket from the API
-    loading.value = true;
-    const result = await fetchTicketDetails(id);
-    loading.value = false;
+    loading.value = true
+    const result = await ticketsStore.getCurrentTicket(id)
+    loading.value = false
     if (result === undefined) {
-        router.replace('/404');
-        return;
+        router.replace({ name: 'not-found' })
+        return
     }
-    ticket.value = result;
-});
+
+    setTicketAndStatus(result)
+})
 
 const formattedDate = computed(() => {
-    if (!ticket.value) return '';
+    if (!ticket.value) return ''
 
     try {
         return new Date(ticket.value.createdAt).toLocaleDateString('pl-PL', {
@@ -161,11 +182,11 @@ const formattedDate = computed(() => {
             day: 'numeric',
             hour: '2-digit',
             minute: '2-digit',
-        });
+        })
     } catch {
-        return ticket.value.createdAt;
+        return ticket.value.createdAt
     }
-});
+})
 </script>
 
 <style lang="scss" scoped>
